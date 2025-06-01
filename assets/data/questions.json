@@ -1,0 +1,38 @@
+[
+  {
+    "pinyin": "a",
+    "audioPath": "audio/a.mp3",
+    "emoji": "😊",
+    "options": ["a", "o", "e", "i"]
+  },
+  {
+    "pinyin": "o",
+    "audioPath": "audio/o.mp3",
+    "emoji": "😮",
+    "options": ["a", "o", "e", "i"]
+  },
+  {
+    "pinyin": "e",
+    "audioPath": "audio/e.mp3",
+    "emoji": "😄",
+    "options": ["a", "o", "e", "i"]
+  },
+  {
+    "pinyin": "i",
+    "audioPath": "audio/i.mp3",
+    "emoji": "😊",
+    "options": ["a", "o", "e", "i"]
+  },
+  {
+    "pinyin": "u",
+    "audioPath": "audio/u.mp3",
+    "emoji": "😯",
+    "options": ["u", "ü", "v", "w"]
+  },
+  {
+    "pinyin": "ü",
+    "audioPath": "audio/ü.mp3",
+    "emoji": "😚",
+    "options": ["u", "ü", "v", "w"]
+  }
+] 
