@@ -1,16 +1,160 @@
-# pinyin
+以下是基于你提供的需求（使用 Flutter 和 GetX 状态管理）整理的**拼音练习游戏核心功能需求文档**，适用于 MAC 和 Android 平台，适合 7 岁儿童使用：
 
-A new Flutter project.
+---
 
-## Getting Started
+# 拼音练习游戏核心功能需求文档（Flutter + GetX）
 
-This project is a starting point for a Flutter application.
+## 一、项目概述
 
-A few resources to get you started if this is your first Flutter project:
+本项目是一款适用于儿童的拼音学习与练习游戏，旨在通过趣味互动方式帮助孩子掌握拼音发音与识别，提升汉语拼音能力。支持跨平台（Android、macOS），使用 Flutter 开发，GetX 进行状态管理。
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 二、目标用户
+
+* 年龄：6\~8 岁儿童（小学一年级）
+* 学习目标：掌握声母、韵母、整体认读音节的拼音发音和书写形式
+
+---
+
+## 三、核心功能模块
+
+### 1. **题库生成模块**
+
+#### 功能描述：
+
+* 自动生成拼音练习题目
+* 支持题型种类配置（声母/韵母/整体认读/组合）
+* 随机题目/指定范围题目
+
+#### 子功能：
+
+* 题目类型枚举定义（例如：拼音 → emoji、发音 → 拼音）
+* 支持题库持久化与加载
+* 支持针对错题优先出题
+
+---
+
+### 2. **题目类型一：根据发音选择正确拼音**
+
+#### 功能描述：
+
+* 播放拼音语音
+* 显示多个拼音选项供选择
+* 用户点击作答并提示对错
+
+#### 技术要求：
+
+* 播放本地或网络拼音音频文件
+* GetX 控制题目状态与用户作答状态
+
+---
+
+### 3. **题目类型二：根据拼音显示发音（读出拼音）**
+
+#### 功能描述：
+
+* 显示拼音文字（如 “zh”）
+* 点击后播放正确发音
+* 可作为练习或听力自测使用
+
+#### 技术要求：
+
+* 文本转语音或内置录音播放
+* 可扩展支持录音对比（非核心）
+
+---
+
+### 4. **题目类型三：根据 Emoji 选择正确拼音字母**
+
+#### 功能描述：
+
+* 显示一个表情符号（如 🐱）
+* 提供 3\~4 个拼音选项
+* 用户选出正确读音（如 "māo"）
+
+#### 设计建议：
+
+* 支持图片或 Emoji 展示
+* 后台可配置词汇对应关系
+
+---
+
+### 5. **题目类型四：根据拼音选择正确 Emoji**
+
+#### 功能描述：
+
+* 显示拼音文字
+* 用户从多个 Emoji 中选择正确图像
+* 例如：“māo” → 🐱
+
+---
+
+### 6. **错题记录模块**
+
+#### 功能描述：
+
+* 自动记录用户答错题目
+* 支持错题复习练习模式
+* 按题型/拼音分类管理
+
+#### 技术实现：
+
+* 使用本地存储（SharedPreferences 或本地数据库如 Hive）
+* GetX 控制错题状态与刷新
+
+---
+
+### 7. **学习进度记录模块**
+
+#### 功能描述：
+
+* 记录每日答题数量、正确率
+* 提供简易统计（图表或百分比）
+* 支持按天/周查看
+
+#### 技术实现：
+
+* 本地存储（JSON 或 Hive）
+* 可选：集成日历视图展示答题天数
+
+---
+
+## 四、其他功能建议（可选）
+
+* 背景音乐与音效增强游戏趣味性
+* 积分奖励机制（增加孩子积极性）
+* 家长模式：查看学习记录、设置难度
+
+---
+
+## 五、技术架构
+
+| 层级    | 框架 / 技术                       |
+| ----- | ----------------------------- |
+| 状态管理  | GetX                          |
+| 路由导航  | GetX Navigator                |
+| 数据存储  | SharedPreferences / Hive      |
+| 音频播放  | `just_audio` 或 `audioplayers` |
+| UI 构建 | Flutter 自定义控件                 |
+| 数据模型  | Dart 类封装题目与记录                 |
+| 多平台构建 | Flutter + macOS / Android 编译  |
+
+---
+
+## 六、UI设计初稿建议
+
+* 大图标、少文字，符合低龄用户
+* 每个题型有独立页面或选项
+* 使用卡通风格色彩和音效
+* 每题后立即反馈（对/错动画、音效）
+
+---
+
+如果你需要，我还可以帮你：
+
+* 拆解出每个模块的页面结构和路由
+* 编写数据模型类（题目、记录）
+* 设计 Flutter 组件布局草图
+
+是否需要我继续细化某个模块的功能或代码结构？
