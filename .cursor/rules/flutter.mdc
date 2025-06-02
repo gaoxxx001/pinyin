@@ -1,0 +1,674 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Flutter GetX 开发规则配置
+name: "Flutter GetX Development Rules"
+version: "1.0.0"
+description: "基于Flutter最佳实践和GetX框架的代码生成规则"
+
+rules:
+  # 基础开发原则
+  fundamentals:
+    - "使用中文注释和文档，代码使用英文"
+    - "所有变量、函数参数和返回值必须显式声明类型"
+    - "避免使用dynamic，创建必要的类型定义"
+    - "函数内部不留空行，保持代码紧凑"
+    - "每个文件仅包含一个主要导出"
+    - "优先使用final声明不需要重新赋值的变量"
+    - "使用const声明编译时常量"
+
+  # 命名规范
+  naming_conventions:
+    files: "snake_case (如: user_controller.dart, home_page.dart)"
+    classes: "PascalCase (如: UserController, HomePage)"
+    variables_methods: "camelCase (如: userName, loadUserData)"
+    constants: "UPPER_CASE (如: API_BASE_URL)"
+    booleans: "动词形式 (如: isLoading, hasError, canDelete)"
+    directories: "snake_case"
+
+  # 项目结构模板
+  project_structure: |
+    lib/
+    ├── core/                    # 核心模块
+    │   ├── data/               # 数据层
+    │   │   ├── models/         # 数据模型
+    │   │   ├── providers/      # 数据提供者
+    │   │   └── repositories/   # 数据仓库实现
+    │   ├── domain/             # 领域层
+    │   │   ├── entities/       # 实体
+    │   │   └── repositories/   # 仓库接口
+    │   ├── presentation/       # 表现层
+    │   │   ├── bindings/       # 依赖注入绑定
+    │   │   ├── controllers/    # 控制器
+    │   │   ├── pages/          # 页面
+    │   │   └── widgets/        # 可复用组件
+    │   └── utils/              # 工具类
+    ├── modules/                # 功能模块
+    ├── routes/                 # 路由管理
+    ├── shared/                 # 共享资源
+    │   ├── constants/          # 常量
+    │   ├── themes/             # 主题配置
+    │   └── widgets/            # 全局组件
+    └── main.dart               # 应用入口
+
+  # 代码模板
+  templates:
+    
+    # GetX Controller 模板
+    controller: |
+      ```dart
+      class {NAME}Controller extends GetxController {
+        // 响应式变量声明
+        final RxBool isLoading = false.obs;
+        final RxString errorMessage = ''.obs;
+        final Rx<{MODEL}?> data = Rx<{MODEL}?>(null);
+        final RxList<{MODEL}> dataList = <{MODEL}>[].obs;
+
+        // 依赖注入
+        final {REPOSITORY} _repository = Get.find<{REPOSITORY}>();
+
+        // Getter 简化访问
+        {MODEL}? get current{MODEL} => data.value;
+        bool get hasData => data.value != null;
+        bool get hasError => errorMessage.value.isNotEmpty;
+
+        @override
+        void onInit() {
+          super.onInit();
+          // 初始化逻辑
+          loadData();
+        }
+
+        @override
+        void onReady() {
+          super.onReady();
+          // 页面渲染完成后的逻辑
+        }
+
+        @override
+        void onClose() {
+          // 资源释放
+          super.onClose();
+        }
+
+        /// 加载数据
+        Future<void> loadData() async {
+          try {
+            isLoading.value = true;
+            errorMessage.value = '';
+            
+            final result = await _repository.getData();
+            data.value = result;
+          } catch (e) {
+            errorMessage.value = e.toString();
+            Get.snackbar(
+              '错误',
+              '加载数据失败：${e.toString()}',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+          } finally {
+            isLoading.value = false;
+          }
+        }
+
+        /// 刷新数据
+        Future<void> refreshData() async {
+          data.value = null;
+          await loadData();
+        }
+      }
+      ```
+
+    # GetX Page 模板
+    page: |
+      ```dart
+      class {NAME}Page extends GetView<{NAME}Controller> {
+        const {NAME}Page({Key? key}) : super(key: key);
+
+        @override
+        Widget build(BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('{TITLE}'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: controller.refreshData,
+                ),
+              ],
+            ),
+            body: Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (controller.hasError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        controller.errorMessage.value,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: controller.loadData,
+                        child: const Text('重试'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              if (!controller.hasData) {
+                return const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        '暂无数据',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return RefreshIndicator(
+                onRefresh: controller.refreshData,
+                child: _buildContent(),
+              );
+            }),
+          );
+        }
+
+        Widget _buildContent() {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // 页面内容
+              ],
+            ),
+          );
+        }
+      }
+      ```
+
+    # GetX Binding 模板
+    binding: |
+      ```dart
+      class {NAME}Binding extends Bindings {
+        @override
+        void dependencies() {
+          // 服务注入（单例）
+          Get.lazyPut<{API_SERVICE}>(
+            () => {API_SERVICE}(),
+            fenix: true,
+          );
+
+          // 仓库注入（单例）
+          Get.lazyPut<{REPOSITORY}>(
+            () => {REPOSITORY}Impl(Get.find<{API_SERVICE}>()),
+            fenix: true,
+          );
+
+          // 控制器注入（延迟加载）
+          Get.lazyPut<{NAME}Controller>(
+            () => {NAME}Controller(),
+          );
+        }
+      }
+      ```
+
+    # Repository 接口模板
+    repository_interface: |
+      ```dart
+      abstract class {NAME}Repository {
+        Future<List<{MODEL}>> getAll();
+        Future<{MODEL}> getById(String id);
+        Future<{MODEL}> create({MODEL} model);
+        Future<{MODEL}> update(String id, {MODEL} model);
+        Future<void> delete(String id);
+      }
+      ```
+
+    # Repository 实现模板
+    repository_impl: |
+      ```dart
+      class {NAME}RepositoryImpl implements {NAME}Repository {
+        final {API_SERVICE} _apiService;
+        final CacheService? _cacheService;
+
+        {NAME}RepositoryImpl(this._apiService, [this._cacheService]);
+
+        @override
+        Future<List<{MODEL}>> getAll() async {
+          const cacheKey = '{name}_list';
+          
+          // 尝试从缓存获取
+          if (_cacheService != null) {
+            final cachedData = await _cacheService!.get<List<{MODEL}>>(cacheKey);
+            if (cachedData != null) {
+              return cachedData;
+            }
+          }
+
+          try {
+            final response = await _apiService.get('/{endpoint}');
+            final List<{MODEL}> result = (response.data as List)
+                .map((json) => {MODEL}.fromJson(json))
+                .toList();
+
+            // 缓存数据
+            if (_cacheService != null) {
+              await _cacheService!.set(
+                cacheKey,
+                result,
+                duration: const Duration(minutes: 5),
+              );
+            }
+
+            return result;
+          } catch (e) {
+            throw RepositoryException('获取数据失败：${e.toString()}');
+          }
+        }
+
+        @override
+        Future<{MODEL}> getById(String id) async {
+          try {
+            final response = await _apiService.get('/{endpoint}/$id');
+            return {MODEL}.fromJson(response.data);
+          } catch (e) {
+            throw RepositoryException('获取详情失败：${e.toString()}');
+          }
+        }
+
+        @override
+        Future<{MODEL}> create({MODEL} model) async {
+          try {
+            final response = await _apiService.post(
+              '/{endpoint}',
+              data: model.toJson(),
+            );
+            return {MODEL}.fromJson(response.data);
+          } catch (e) {
+            throw RepositoryException('创建失败：${e.toString()}');
+          }
+        }
+
+        @override
+        Future<{MODEL}> update(String id, {MODEL} model) async {
+          try {
+            final response = await _apiService.put(
+              '/{endpoint}/$id',
+              data: model.toJson(),
+            );
+            return {MODEL}.fromJson(response.data);
+          } catch (e) {
+            throw RepositoryException('更新失败：${e.toString()}');
+          }
+        }
+
+        @override
+        Future<void> delete(String id) async {
+          try {
+            await _apiService.delete('/{endpoint}/$id');
+          } catch (e) {
+            throw RepositoryException('删除失败：${e.toString()}');
+          }
+        }
+      }
+      ```
+
+    # Model 模板
+    model: |
+      ```dart
+      class {NAME} {
+        final String id;
+        final String name;
+        final DateTime createdAt;
+        final DateTime updatedAt;
+
+        const {NAME}({
+          required this.id,
+          required this.name,
+          required this.createdAt,
+          required this.updatedAt,
+        });
+
+        /// 从JSON创建实例
+        factory {NAME}.fromJson(Map<String, dynamic> json) {
+          return {NAME}(
+            id: json['id'] as String,
+            name: json['name'] as String,
+            createdAt: DateTime.parse(json['created_at'] as String),
+            updatedAt: DateTime.parse(json['updated_at'] as String),
+          );
+        }
+
+        /// 转换为JSON
+        Map<String, dynamic> toJson() {
+          return {
+            'id': id,
+            'name': name,
+            'created_at': createdAt.toIso8601String(),
+            'updated_at': updatedAt.toIso8601String(),
+          };
+        }
+
+        /// 复制并修改部分属性
+        {NAME} copyWith({
+          String? id,
+          String? name,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+        }) {
+          return {NAME}(
+            id: id ?? this.id,
+            name: name ?? this.name,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+          );
+        }
+
+        @override
+        bool operator ==(Object other) {
+          if (identical(this, other)) return true;
+          return other is {NAME} && other.id == id;
+        }
+
+        @override
+        int get hashCode => id.hashCode;
+
+        @override
+        String toString() {
+          return '{NAME}(id: $id, name: $name)';
+        }
+      }
+      ```
+
+    # Service 模板
+    service: |
+      ```dart
+      class {NAME}Service extends GetxService {
+        late final Dio _dio;
+
+        @override
+        void onInit() {
+          super.onInit();
+          _initializeDio();
+        }
+
+        void _initializeDio() {
+          _dio = Dio(
+            BaseOptions(
+              baseUrl: '{BASE_URL}',
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 30),
+              sendTimeout: const Duration(seconds: 30),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            ),
+          );
+
+          // 添加拦截器
+          _dio.interceptors.add(LogInterceptor(
+            requestBody: true,
+            responseBody: true,
+            logPrint: (obj) => print(obj),
+          ));
+
+          // 错误拦截器
+          _dio.interceptors.add(
+            InterceptorsWrapper(
+              onError: (error, handler) {
+                _handleError(error);
+                handler.next(error);
+              },
+            ),
+          );
+        }
+
+        Future<Response> get(String path, {Map<String, dynamic>? queryParameters}) async {
+          try {
+            return await _dio.get(path, queryParameters: queryParameters);
+          } catch (e) {
+            throw _handleException(e);
+          }
+        }
+
+        Future<Response> post(String path, {dynamic data}) async {
+          try {
+            return await _dio.post(path, data: data);
+          } catch (e) {
+            throw _handleException(e);
+          }
+        }
+
+        Future<Response> put(String path, {dynamic data}) async {
+          try {
+            return await _dio.put(path, data: data);
+          } catch (e) {
+            throw _handleException(e);
+          }
+        }
+
+        Future<Response> delete(String path) async {
+          try {
+            return await _dio.delete(path);
+          } catch (e) {
+            throw _handleException(e);
+          }
+        }
+
+        void _handleError(DioException error) {
+          String message = '网络请求失败';
+          
+          switch (error.type) {
+            case DioExceptionType.connectionTimeout:
+            case DioExceptionType.sendTimeout:
+            case DioExceptionType.receiveTimeout:
+              message = '网络连接超时';
+              break;
+            case DioExceptionType.badResponse:
+              message = '服务器错误：${error.response?.statusCode}';
+              break;
+            case DioExceptionType.unknown:
+              message = '网络连接异常';
+              break;
+            default:
+              message = error.message ?? '未知错误';
+          }
+
+          Get.snackbar(
+            '网络错误',
+            message,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+
+        Exception _handleException(dynamic error) {
+          if (error is DioException) {
+            switch (error.type) {
+              case DioExceptionType.connectionTimeout:
+              case DioExceptionType.sendTimeout:
+              case DioExceptionType.receiveTimeout:
+                return NetworkException('网络连接超时');
+              case DioExceptionType.badResponse:
+                return ServerException('服务器错误：${error.response?.statusCode}');
+              case DioExceptionType.unknown:
+                return NetworkException('网络连接异常');
+              default:
+                return NetworkException(error.message ?? '网络请求失败');
+            }
+          }
+          return Exception('未知错误：${error.toString()}');
+        }
+
+        @override
+        void onClose() {
+          _dio.close();
+          super.onClose();
+        }
+      }
+      ```
+
+    # Widget 模板
+    widget: |
+      ```dart
+      class {NAME}Widget extends StatelessWidget {
+        final {PARAM_TYPE}? {param};
+        final VoidCallback? onTap;
+
+        const {NAME}Widget({
+          Key? key,
+          this.{param},
+          this.onTap,
+        }) : super(key: key);
+
+        @override
+        Widget build(BuildContext context) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: _buildContent(context),
+          );
+        }
+
+        Widget _buildContent(BuildContext context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Widget 内容
+            ],
+          );
+        }
+      }
+      ```
+
+  # 性能优化规则
+  performance_optimization:
+    - "使用const构造函数优化Widget重建"
+    - "ListView使用.builder构造函数，避免一次性构建所有项目"
+    - "为列表项指定固定高度(itemExtent)提高滚动性能"
+    - "使用ValueKey优化列表项重排序性能"
+    - "精确使用Obx包装最小响应式UI单元"
+    - "合理选择GetBuilder vs Obx vs StateMixin"
+    - "使用Workers处理防抖和节流操作"
+    - "避免在build方法中执行耗时操作"
+    - "使用RepaintBoundary隔离频繁重绘区域"
+    - "图片使用cached_network_image进行缓存"
+
+  # 状态管理最佳实践
+  state_management:
+    - "频繁更新的小组件使用.obs + Obx"
+    - "批量更新或性能敏感场景使用GetBuilder + update()"
+    - "异步状态处理使用StateMixin"
+    - "避免过度使用.obs，只在必要时使用响应式"
+    - "使用Workers处理副作用操作"
+    - "在onClose中正确释放资源"
+
+  # 依赖注入规范
+  dependency_injection:
+    - "优先使用Get.lazyPut延迟加载依赖"
+    - "全局服务使用GetxService"
+    - "在Binding中统一管理依赖注入"
+    - "避免滥用permanent:true防止内存泄漏"
+    - "使用SmartManagement管理控制器生命周期"
+
+  # 错误处理规范
+  error_handling:
+    - "使用统一的错误处理服务"
+    - "定义具体的异常类型"
+    - "提供用户友好的错误提示"
+    - "记录关键错误日志"
+    - "使用try-catch包装异步操作"
+
+  # 测试规范
+  testing:
+    - "为每个控制器编写单元测试"
+    - "使用mockito模拟依赖项"
+    - "遵循Arrange-Act-Assert测试模式"
+    - "为关键业务逻辑编写集成测试"
+    - "使用flutter_test进行Widget测试"
+
+  # 代码质量检查
+  code_quality:
+    - "使用flutter_lints进行代码检查"
+    - "保持函数长度在20行以内"
+    - "避免深层嵌套，提取子函数"
+    - "使用有意义的变量和函数命名"
+    - "为公共API编写文档注释"
+    - "定期重构冗余代码"
+
+  # 路由管理规范
+  routing:
+    - "使用命名路由进行页面导航"
+    - "在app_routes.dart中统一定义路由常量"
+    - "在app_pages.dart中配置路由页面"
+    - "使用Get.toNamed进行页面跳转"
+    - "通过arguments传递复杂对象"
+    - "使用parameters传递简单参数"
+
+  # 主题和样式规范
+  theming:
+    - "使用ThemeData统一管理应用主题"
+    - "定义颜色、字体、尺寸常量"
+    - "支持深色和浅色主题"
+    - "使用Theme.of(context)获取主题数据"
+    - "避免硬编码样式值"
+
+  # 国际化规范
+  internationalization:
+    - "使用flutter_localizations支持多语言"
+    - "在AppLocalizations中定义文本"
+    - "避免硬编码字符串"
+    - "支持RTL布局"
+    - "测试不同语言下的UI布局"
+
+  # 安全规范
+  security:
+    - "敏感数据使用flutter_secure_storage存储"
+    - "API密钥等敏感信息使用环境变量"
+    - "对用户输入进行验证和清理"
+    - "使用HTTPS进行网络通信"
+    - "实施适当的身份验证和授权"
+
+

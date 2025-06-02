@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'core/domain/models/pinyin_question.dart';
-import 'core/presentation/pages/main_page.dart';
+import 'core/data/models/pinyin_question.dart';
+import 'core/presentation/bindings/app_binding.dart';
+import 'routes/app_pages.dart';
+import 'routes/app_routes.dart';
+import 'shared/themes/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,11 +25,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: '拼音练习',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MainPage(),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      initialBinding: AppBinding(),
+      initialRoute: Routes.MAIN,
+      getPages: AppPages.pages,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
