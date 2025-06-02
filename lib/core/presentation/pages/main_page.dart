@@ -116,11 +116,7 @@ class MainPage extends GetView<MainController> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 // Emoji 显示
-                _buildEmojiDisplay(question.emoji),
-                
-                // 播放按钮
-                _buildPlayButton(),
-                
+                _buildEmojiDisplay(question.emoji),            
                 // 选项按钮
                 _buildOptionsGrid(question.options),
               ],
