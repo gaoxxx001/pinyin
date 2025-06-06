@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # Flutter GetX 开发规则配置
 name: "Flutter GetX Development Rules"
@@ -29,29 +29,23 @@ rules:
     directories: "snake_case"
 
   # 项目结构模板
-  project_structure: |
+  project_structure: 
     lib/
-    ├── core/                    # 核心模块
-    │   ├── data/               # 数据层
-    │   │   ├── models/         # 数据模型
-    │   │   ├── providers/      # 数据提供者
-    │   │   └── repositories/   # 数据仓库实现
-    │   ├── domain/             # 领域层
-    │   │   ├── entities/       # 实体
-    │   │   └── repositories/   # 仓库接口
-    │   ├── presentation/       # 表现层
-    │   │   ├── bindings/       # 依赖注入绑定
-    │   │   ├── controllers/    # 控制器
-    │   │   ├── pages/          # 页面
-    │   │   └── widgets/        # 可复用组件
-    │   └── utils/              # 工具类
-    ├── modules/                # 功能模块
-    ├── routes/                 # 路由管理
-    ├── shared/                 # 共享资源
-    │   ├── constants/          # 常量
-    │   ├── themes/             # 主题配置
-    │   └── widgets/            # 全局组件
-    └── main.dart               # 应用入口
+    ├── shared/                # 共享资源
+    │   ├── constants/        # 常量定义
+    │   ├── theme/           # 主题配置
+    │   └── utils/           # 工具类
+    ├── data/                 # 数据层
+    │   ├── models/          # 数据模型
+    │   ├── repositories/    # 数据仓库
+    │   └── services/        # 网络服务
+    ├── presentation/         # 表现层
+    │   ├── bindings/      # 依赖注入绑定
+    │   ├── controllers/    # 控制器
+    │   ├── pages/         # 页面
+    │   └── widgets/      # 可复用组件
+    ├── routes/            # 路由管理
+    └── main.dart         # 应用入口
 
   # 代码模板
   templates:
@@ -589,8 +583,6 @@ rules:
     - "ListView使用.builder构造函数，避免一次性构建所有项目"
     - "为列表项指定固定高度(itemExtent)提高滚动性能"
     - "使用ValueKey优化列表项重排序性能"
-    - "精确使用Obx包装最小响应式UI单元"
-    - "合理选择GetBuilder vs Obx vs StateMixin"
     - "使用Workers处理防抖和节流操作"
     - "避免在build方法中执行耗时操作"
     - "使用RepaintBoundary隔离频繁重绘区域"
@@ -598,10 +590,10 @@ rules:
 
   # 状态管理最佳实践
   state_management:
+    - "合理选择GetBuilder vs Obx"
+    - "精确使用Obx包装最小响应式UI单元"
     - "频繁更新的小组件使用.obs + Obx"
     - "批量更新或性能敏感场景使用GetBuilder + update()"
-    - "异步状态处理使用StateMixin"
-    - "避免过度使用.obs，只在必要时使用响应式"
     - "使用Workers处理副作用操作"
     - "在onClose中正确释放资源"
 
@@ -655,13 +647,6 @@ rules:
     - "使用Theme.of(context)获取主题数据"
     - "避免硬编码样式值"
 
-  # 国际化规范
-  internationalization:
-    - "使用flutter_localizations支持多语言"
-    - "在AppLocalizations中定义文本"
-    - "避免硬编码字符串"
-    - "支持RTL布局"
-    - "测试不同语言下的UI布局"
 
   # 安全规范
   security:

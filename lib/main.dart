@@ -1,20 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'core/data/models/pinyin_question.dart';
-import 'core/presentation/bindings/app_binding.dart';
+import 'presentation/bindings/app_binding.dart';
 import 'routes/app_pages.dart';
-import 'routes/app_routes.dart';
-import 'shared/themes/app_theme.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // 初始化 Hive
-  await Hive.initFlutter();
-  Hive.registerAdapter(PinyinQuestionAdapter());
-  await Hive.openBox<PinyinQuestion>('questions');
-  
+void main() {
   runApp(const MyApp());
 }
 
@@ -24,13 +13,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: '拼音练习',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      title: '拼音学习',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+      ),
       initialBinding: AppBinding(),
-      initialRoute: Routes.MAIN,
+      initialRoute: AppPages.INITIAL,
       getPages: AppPages.pages,
-      debugShowCheckedModeBanner: false,
     );
   }
 }
