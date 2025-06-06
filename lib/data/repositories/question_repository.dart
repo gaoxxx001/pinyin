@@ -6,8 +6,8 @@ import '../models/question_entity.dart';
 class QuestionRepository extends GetxService {
   late Isar _isar;
   
-  // 获取 Isar 实例
   Isar get isar => _isar;
+  set isar(Isar value) => _isar = value;
   
   // 初始化数据库
   Future<QuestionRepository> init() async {
