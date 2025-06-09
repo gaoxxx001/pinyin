@@ -42,4 +42,13 @@ class QuestionEntity {
   void setOptionsFromPairs(List<List<String>> pairs) {
     options = pairs.map((pair) => pair.join(',')).toList();
   }
+
+  List<String> getRandomOptions() {
+    var xs = options.toList();
+    xs.shuffle();
+    xs = xs.take(3).toList();
+    xs.add(pinyin.join(' '));
+    xs.shuffle();
+    return xs;
+  }
 } 

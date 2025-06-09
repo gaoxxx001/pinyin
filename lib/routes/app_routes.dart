@@ -1,4 +1,5 @@
 /// 应用路由常量定义
+library;
 // ignore_for_file: constant_identifier_names
 
 abstract class Routes {

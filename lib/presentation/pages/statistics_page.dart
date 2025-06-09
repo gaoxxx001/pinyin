@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/statistics_controller.dart';
 
 class StatisticsPage extends GetView<StatisticsController> {
-  const StatisticsPage({Key? key}) : super(key: key);
+  const StatisticsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
