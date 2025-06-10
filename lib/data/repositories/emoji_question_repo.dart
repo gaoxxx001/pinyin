@@ -1,11 +1,16 @@
+import 'package:get/get.dart';
 import 'package:pinyin/data/models/emoji_question.dart';
 import 'package:pinyin/data/providers/question_entity_provider.dart';
 
 
-class EmojiQuestionRepo {
+class EmojiQuestionRepo extends GetxService {
   late QuestionEntityProvider questionEntityProvider;
 
-  EmojiQuestionRepo(this.questionEntityProvider);
+  @override
+  void onInit() {
+    super.onInit();
+    questionEntityProvider = Get.find<QuestionEntityProvider>();
+  }
 
   Future<List<EmojiQuestion>> getQuestions(int count) async {
     var errorQ = await questionEntityProvider.getLeastCompletedQuestions(count~/2);

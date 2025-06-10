@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pinyin/data/models/question_entity.dart';
+import 'package:pinyin/data/models/study_record.dart';
 
 class QuestionDataImporter {
   final Isar isar;
@@ -52,17 +53,15 @@ void main() async {
   // 确保目录存在
   await Directory(dir.path).create(recursive: true);
 
-  final isar = await Isar.open([QuestionEntitySchema], directory: dir.path, name: 'questions');
+  final isar = await Isar.open([QuestionEntitySchema,StudyRecordSchema], directory: dir.path, name: 'questions');
   final importer = QuestionDataImporter(isar);
 
-  // try {
-  //   await importer.importFromJson('assets/data/output_question.json');
-  // } catch (e) {
-  //   print('导入失败: $e');
-  // }
-  var xs = await isar.collection<QuestionEntity>().where().findAll();
-  for (var x in xs) {
-    print(x.emoji);
+  try {
+    await importer.importFromJson('assets/data/output_question.json');
+  } catch (e) {
+    print('导入失败: $e');
   }
+  print('${dir.path}');
+
 }
 

@@ -3,17 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinyin/data/models/emoji_question.dart';
-import '../../../data/models/question.dart';
 import '../../../data/models/study_record.dart';
-import '../../../data/repositories/question_repository.dart';
+import '../../../data/repositories/emoji_question_repo.dart';
 import '../../../data/repositories/study_record_repository.dart';
 
 enum QuestionStatus { notAnswered, current, correct, wrong }
 enum OptionStatus { normal, correct, wrong }
 
 class PracticeController extends GetxController {
-  final EmojiQuestionRepo _questionRepository = Get.find();
-  final StudyRecordRepository _studyRecordRepository = Get.find();
+  late EmojiQuestionRepo _questionRepository;
+  late StudyRecordRepository _studyRecordRepository;
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
@@ -33,6 +32,8 @@ class PracticeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _questionRepository = Get.find();
+    _studyRecordRepository = Get.find();
     loadQuestions();
   }
 
@@ -46,8 +47,9 @@ class PracticeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      final list = await _questionRepository.getRandomQuestions(20);
+      final list = await _questionRepository.getQuestions(20);
       questions.assignAll(list);
+      print('questions: ${questions.length}');
       statusList.assignAll(List.generate(list.length, (i) => i == 0 ? QuestionStatus.current : QuestionStatus.notAnswered));
       currentIndex.value = 0;
       correctCount.value = 0;
@@ -105,7 +107,7 @@ class PracticeController extends GetxController {
       statusList[currentIndex.value] = QuestionStatus.wrong;
     }
     update();
-    Future.delayed(const Duration(milliseconds: 800), nextQuestion);
+    Future.delayed(const Duration(milliseconds: 1500), nextQuestion);
   }
 
   void nextQuestion() {
@@ -165,13 +167,12 @@ class PracticeController extends GetxController {
 
   Future<void> _saveRecord() async {
     final record = StudyRecord(
-      id: '', // 由数据库生成
-      total: answeredCount.value,
-      wrong: wrongCount.value,
-      duration: elapsedSeconds.value,
-      createdAt: DateTime.now(),
+      totalQuestions: answeredCount.value,
+      wrongQuestions: wrongCount.value,
+      totalTimeInSeconds: elapsedSeconds.value,
+      studyTime: DateTime.now(),
     );
-    await _studyRecordRepository.create(record);
+    await _studyRecordRepository.saveRecord(record);
   }
 
   bool get hasError => errorMessage.value.isNotEmpty;

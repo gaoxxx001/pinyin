@@ -1,10 +1,19 @@
 import 'package:isar/isar.dart';
 import 'package:pinyin/data/models/study_record.dart';
+import 'package:get/get.dart';
+import 'package:pinyin/services/isar_service.dart';
 
-class StudyRecordProvider {
-  final Isar _isar;
 
-  StudyRecordProvider(this._isar);
+class StudyRecordProvider extends GetxService {
+  late Isar _isar;
+
+  StudyRecordProvider();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _isar = Get.find<IsarService>().isar;
+  }
 
   /// 保存学习记录
   Future<void> saveRecord(StudyRecord record) async {

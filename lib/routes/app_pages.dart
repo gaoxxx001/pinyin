@@ -11,7 +11,6 @@ class AppPages {
   AppPages._();
 
   /// 初始路由
-  static const String INITIAL = Routes.HOME;
 
   /// 路由页面列表
   static final List<GetPage> pages = [

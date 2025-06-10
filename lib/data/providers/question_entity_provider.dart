@@ -1,10 +1,18 @@
 import 'package:isar/isar.dart';
+import 'package:get/get.dart';
 import 'package:pinyin/data/models/question_entity.dart';
+import 'package:pinyin/services/isar_service.dart';
 
-class QuestionEntityProvider {
-  final Isar _isar;
+class QuestionEntityProvider extends GetxService {
+  late Isar _isar;
 
-  QuestionEntityProvider(this._isar);
+  QuestionEntityProvider();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _isar = Get.find<IsarService>().isar;
+  }
 
   /// 获取指定最大错误回答次数的问题
   /// [maxErrorCount] 最大错误次数
