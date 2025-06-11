@@ -1,4 +1,8 @@
 import 'package:get/get.dart';
+import 'package:pinyin/presentation/bindings/settings_binding.dart';
+import 'package:pinyin/presentation/bindings/statistics_binding.dart';
+import 'package:pinyin/presentation/pages/settings_page.dart';
+import 'package:pinyin/presentation/pages/statistics_page.dart';
 import '../presentation/pages/practice_page.dart';
 import '../presentation/pages/home_page.dart';
 import '../presentation/bindings/practice_binding.dart';
@@ -28,20 +32,22 @@ class AppPages {
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 300),
     ),
-    // TODO: 添加设置和统计页面的路由配置
-    // GetPage(
-    //   name: Routes.SETTINGS,
-    //   page: () => const SettingsPage(),
-    //   binding: SettingsBinding(),
-    //   transition: Transition.fadeIn,
-    //   transitionDuration: const Duration(milliseconds: 300),
-    // ),
-    // GetPage(
-    //   name: Routes.STATISTICS,
-    //   page: () => const StatisticsPage(),
-    //   binding: StatisticsBinding(),
-    //   transition: Transition.fadeIn,
-    //   transitionDuration: const Duration(milliseconds: 300),
-    // ),
+      GetPage(
+        name: Routes.SETTINGS,
+        page: () => const SettingsPage(),
+        binding: SettingsBinding(),
+        transition: Transition.fadeIn,
+        transitionDuration: const Duration(milliseconds: 300),
+      ),
+    GetPage(
+      name: Routes.STATISTICS,
+      page: () => const StatisticsPage(),
+      binding: StatisticsBinding(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
   ];
-} 
+}
+
+
+

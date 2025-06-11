@@ -69,4 +69,16 @@ class StudyRecord {
       'studyTime': studyTime.toIso8601String(),
     };
   }
+
+  @override
+  String toString() {
+    return 'StudyRecord{'
+        '总题数: $totalQuestions, '
+        '错题数: $wrongQuestions, '
+        '正确率: ${(accuracy * 100).toStringAsFixed(1)}%, '
+        '总用时: ${totalTimeInSeconds}秒, '
+        '平均用时: ${averageTimePerQuestion.toStringAsFixed(1)}秒/题, '
+        '学习时间: ${studyTime.toString().substring(0, 19)}'
+        '}';
+  }
 }

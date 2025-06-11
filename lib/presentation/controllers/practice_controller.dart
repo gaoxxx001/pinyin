@@ -29,6 +29,9 @@ class PracticeController extends GetxController {
   Timer? _timer;
   final RxInt selectedOption = (-1).obs;
 
+  // 选项状态
+  final Map<int, OptionStatus> optionStatuses = {};
+
   @override
   void onInit() {
     super.onInit();
@@ -47,7 +50,7 @@ class PracticeController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      final list = await _questionRepository.getQuestions(20);
+      final list = await _questionRepository.getQuestions(50);
       questions.assignAll(list);
       print('questions: ${questions.length}');
       statusList.assignAll(List.generate(list.length, (i) => i == 0 ? QuestionStatus.current : QuestionStatus.notAnswered));
@@ -78,6 +81,10 @@ class PracticeController extends GetxController {
     currentQuestion.value = q;
     currentOptions.assignAll(q.options..shuffle());
     selectedOption.value = -1;
+    optionStatuses.clear();
+    for (var i = 0; i < currentOptions.length; i++) {
+      optionStatuses[i] = OptionStatus.normal;
+    }
   }
 
   OptionStatus getOptionStatus(int idx) {
@@ -97,7 +104,8 @@ class PracticeController extends GetxController {
     if (selectedOption.value != -1) return;
     selectedOption.value = idx;
     answeredCount.value++;
-    if (currentOptions[idx] == currentQuestion.value?.answer) {
+    var isError = currentOptions[idx] != currentQuestion.value?.answer;
+    if (!isError) {
       correctCount.value++;
       emoji.value = '😃';
       statusList[currentIndex.value] = QuestionStatus.correct;
@@ -107,7 +115,8 @@ class PracticeController extends GetxController {
       statusList[currentIndex.value] = QuestionStatus.wrong;
     }
     update();
-    Future.delayed(const Duration(milliseconds: 1500), nextQuestion);
+    _questionRepository.updateQuestion(currentQuestion.value!,isError);
+   
   }
 
   void nextQuestion() {
@@ -176,4 +185,47 @@ class PracticeController extends GetxController {
   }
 
   bool get hasError => errorMessage.value.isNotEmpty;
+
+  // 是否可以前往上一题
+  bool get canGoPrevious => currentIndex.value > 0;
+
+  // 是否可以前往下一题
+  bool get canGoNext => currentIndex.value < questions.length - 1;
+
+  // 前往上一题
+  void goToPreviousQuestion() {
+    if (canGoPrevious) {
+      currentIndex.value--;
+      _loadCurrent();
+    }
+  }
+
+  // 前往下一题
+  void goToNextQuestion() {
+    if (canGoNext) {
+      currentIndex.value++;
+      _loadCurrent();
+    }
+  }
+
+  // 重置当前题目状态
+  void _resetCurrentQuestion() {
+    final question = questions[currentIndex.value];
+    currentOptions.clear();
+    currentOptions.addAll(_generateOptions(question));
+    optionStatuses.clear();
+    for (var i = 0; i < currentOptions.length; i++) {
+      optionStatuses[i] = OptionStatus.normal;
+    }
+  }
+
+
+  // 生成选项
+  List<String> _generateOptions(EmojiQuestion question) {
+    final options = <String>[];
+    options.add(question.answer);
+    // 添加其他选项的逻辑
+    options.shuffle();
+    return options;
+  }
 }

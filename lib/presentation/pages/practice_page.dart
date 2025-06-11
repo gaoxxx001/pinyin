@@ -83,6 +83,25 @@ class PracticePage extends GetView<PracticeController> {
                 }),
               )),
             ),
+            // 导航按钮
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, size: 32),
+                    tooltip: '上一题',
+                    onPressed: controller.canGoPrevious ? () => controller.goToPreviousQuestion() : null,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_ios, size: 32),
+                    tooltip: '下一题',
+                    onPressed: controller.canGoNext ? () => controller.goToNextQuestion() : null,
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       }),

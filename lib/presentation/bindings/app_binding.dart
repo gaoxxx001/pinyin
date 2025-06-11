@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:pinyin/services/isar_service.dart';
 import 'package:pinyin/data/repositories/emoji_question_repo.dart';
 import 'package:pinyin/data/repositories/study_record_repository.dart';
 import 'package:pinyin/data/providers/question_entity_provider.dart';
@@ -14,6 +13,5 @@ class AppBinding extends Bindings {
     Get.put(StudyRecordProvider(),permanent: true);
     Get.put(EmojiQuestionRepo(),permanent: true);
     Get.put(StudyRecordRepository(),permanent: true);
-    print('AppBinding init');
   }
 } 

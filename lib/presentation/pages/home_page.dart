@@ -11,6 +11,15 @@ class HomePage extends GetView<HomeController> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('拼音学习'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: '设置',
+            onPressed: () {
+              Get.toNamed('/settings');
+            },
+          ),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -71,7 +80,7 @@ class HomePage extends GetView<HomeController> {
     final int length = accuracy.length;
     if (length == 0) {
       return Container(
-        height: 220,
+        height: 300,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -92,8 +101,9 @@ class HomePage extends GetView<HomeController> {
         ),
       );
     }
+
     return Container(
-      height: 220,
+      height: 300,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -106,59 +116,106 @@ class HomePage extends GetView<HomeController> {
         ],
       ),
       padding: const EdgeInsets.all(16),
-      child: LineChart(
-        LineChartData(
-          gridData: FlGridData(show: true),
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true, reservedSize: 40),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                getTitlesWidget: (value, meta) {
-                  final idx = value.toInt();
-                  if (idx < 0 || idx >= length) return const SizedBox.shrink();
-                  return Text('${idx + 1}');
-                },
-                reservedSize: 24,
+      child: Column(
+        children: [
+          // 正确率图表
+          Text('正确率'),
+          SizedBox(
+            height: 100,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(show: true),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text('${value.toInt()}%');
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                minY: 0,
+                maxY: 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      for (int i = 0; i < length; i++)
+                        FlSpot(i.toDouble(), (accuracy[i] * 100).clamp(0, 100)),
+                    ],
+                    isCurved: true,
+                    color: Colors.blue,
+                    barWidth: 3,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(show: false),
+                    isStrokeCapRound: true,
+                  ),
+                ],
+                lineTouchData: LineTouchData(enabled: true),
+                minX: 0,
+                maxX: 10,
               ),
             ),
-            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
-          minY: 0,
-          maxY: 100,
-          lineBarsData: [
-            // 正确率线
-            LineChartBarData(
-              spots: [
-                for (int i = 0; i < length; i++)
-                  FlSpot(i.toDouble(), (accuracy[i] * 100).clamp(0, 100)),
-              ],
-              isCurved: true,
-              color: Colors.blue,
-              barWidth: 3,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: false),
-              isStrokeCapRound: true,
+          const SizedBox(height: 16),
+          // 平均用时图表
+          Text('平均用时'),
+          SizedBox(
+            height: 100,
+            child: LineChart(
+              LineChartData(
+                gridData: FlGridData(show: true),
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text('${value.toInt()}秒');
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        final idx = value.toInt();
+                        if (idx < 0 || idx >= length) return const SizedBox.shrink();
+                        return Text('${idx + 1}');
+                      },
+                      reservedSize: 24,
+                    ),
+                  ),
+                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                ),
+                minY: 0,
+                maxY: 100,
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      for (int i = 0; i < length; i++)
+                        FlSpot(i.toDouble(), avgTime[i]),
+                    ],
+                    isCurved: true,
+                    color: Colors.orange,
+                    barWidth: 3,
+                    dotData: FlDotData(show: false),
+                    belowBarData: BarAreaData(show: false),
+                    isStrokeCapRound: true,
+                  ),
+                ],
+                lineTouchData: LineTouchData(enabled: true),
+                minX: 0,
+                maxX: 10,
+              ),
             ),
-            // 平均用时线
-            LineChartBarData(
-              spots: [
-                for (int i = 0; i < length; i++)
-                  FlSpot(i.toDouble(), avgTime[i]),
-              ],
-              isCurved: true,
-              color: Colors.orange,
-              barWidth: 3,
-              dotData: FlDotData(show: false),
-              belowBarData: BarAreaData(show: false),
-              isStrokeCapRound: true,
-            ),
-          ],
-          lineTouchData: LineTouchData(enabled: true),
-        ),
+          ),
+        ],
       ),
     );
   }

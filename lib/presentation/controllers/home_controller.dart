@@ -25,6 +25,7 @@ class HomeController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       final records = await studyRecordRepository.getRecentRecords(10);
+      print(records);
       recentRecords.assignAll(records);
       accuracyList.assignAll(records.map((r) => r.accuracy));
       avgTimeList.assignAll(records.map((r) => r.averageTimePerQuestion));
@@ -47,7 +48,10 @@ class HomeController extends GetxController {
   }
 
   void onStartPractice() {
-    Get.toNamed('/practice');
+    Get.toNamed('/practice')?.then((_) {
+      // 当从练习页面返回时刷新数据
+      refreshData();
+    });
   }
 
   void onGotoStatistics() {

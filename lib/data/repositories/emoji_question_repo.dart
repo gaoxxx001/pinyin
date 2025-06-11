@@ -20,7 +20,9 @@ class EmojiQuestionRepo extends GetxService {
       errorQ.addAll(completedQ);
       return (errorQ+uncompletedQ+completedQ).map((e) => EmojiQuestion.fromEntity(e)).toList();
     }
-    return (errorQ+uncompletedQ).map((e) => EmojiQuestion.fromEntity(e)).toList();
+    var qs = (errorQ+uncompletedQ).map((e) => EmojiQuestion.fromEntity(e)).toList();
+    qs.shuffle();
+    return qs;
   }
 
   Future<void> updateQuestion(EmojiQuestion question,bool isError) async {
